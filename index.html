@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jumper Wallet Stats</title>
+<meta name="description" content="How early are you on Jumper? Paste any address and see your volume, transactions, chains and first tx. No wallet connection needed.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wallet-stats-checker.vercel.app/">
+<meta property="og:title" content="How early are you on Jumper?">
+<meta property="og:description" content="Paste any address. See your volume, transactions, chains and first tx. No wallet connect, open source.">
+<meta property="og:image" content="https://wallet-stats-checker.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How early are you on Jumper?">
+<meta name="twitter:description" content="Paste any address. See your volume, transactions, chains and first tx. No wallet connect, open source.">
+<meta name="twitter:image" content="https://wallet-stats-checker.vercel.app/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23bea0eb'/%3E%3Cstop offset='1' stop-color='%238700b8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M7 21c5 0 5-10 9-10s4 10 9 10' stroke='white' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#120f29; --bg2:#1b1440; --card:rgba(255,255,255,.06); --card-b:rgba(255,255,255,.1);
+  --text:#fff; --muted:#a79fd0; --purple:#653ba3; --lilac:#bea0eb; --accent:#8700b8;
+  --green:#3fd28b; --red:#ff6b81; --radius:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{
+  font-family:Urbanist,system-ui,sans-serif;color:var(--text);background:var(--bg);
+  background-image:
+    radial-gradient(60% 50% at 15% 0%,rgba(135,0,184,.35),transparent 70%),
+    radial-gradient(50% 45% at 90% 10%,rgba(101,59,163,.45),transparent 70%),
+    radial-gradient(70% 60% at 50% 110%,rgba(190,160,235,.15),transparent 70%);
+  background-attachment:fixed;
+}
+a{color:var(--lilac)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px 64px}
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
+.logo{white-space:nowrap;display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-.02em}
+.logo-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--lilac),var(--accent));display:grid;place-items:center;box-shadow:0 8px 24px rgba(135,0,184,.45)}
+.pill{white-space:nowrap;font-size:12px;font-weight:600;color:var(--lilac);border:1px solid rgba(190,160,235,.35);padding:6px 12px;border-radius:999px;background:rgba(190,160,235,.08)}
+.hero{text-align:center;padding:40px 0 32px}
+.hero h1{font-size:clamp(34px,6vw,60px);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+.hero h1 span{background:linear-gradient(90deg,var(--lilac),#e7d7ff 50%,var(--lilac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);font-size:18px;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.input-card{padding:20px;max-width:760px;margin:0 auto}
+label.lbl{display:block;font-weight:700;font-size:14px;color:var(--muted);margin:0 0 10px 4px}
+textarea{width:100%;min-height:140px;resize:vertical;background:rgba(0,0,0,.25);border:1px solid var(--card-b);border-radius:16px;color:var(--text);padding:14px 16px;font:500 14px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;outline:none;transition:border-color .2s}
+textarea:focus{border-color:var(--lilac)}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:14px}
+.seg{display:inline-flex;background:rgba(0,0,0,.25);border:1px solid var(--card-b);border-radius:999px;padding:4px}
+.seg button{border:0;background:transparent;color:var(--muted);font:700 14px Urbanist;padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button.on{background:var(--purple);color:#fff}
+.btn{border:0;cursor:pointer;font:700 16px Urbanist;color:#fff;padding:14px 28px;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--accent));box-shadow:0 10px 30px rgba(135,0,184,.4);transition:transform .15s,opacity .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;font-size:14px;padding:10px 18px}
+.hint{color:var(--muted);font-size:13px;margin-top:10px;margin-left:4px}
+.safe{margin-top:14px;padding:10px 14px;border-radius:14px;background:rgba(63,210,139,.08);border:1px solid rgba(63,210,139,.25);color:#bdf3d8;font-size:14px;font-weight:600}
+.safe a{color:#3fd28b}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0 18px}
+.stat{padding:18px 20px}
+.stat .k{color:var(--muted);font-size:13px;font-weight:600}
+.stat .v{font-size:28px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.results{padding:8px}
+.res-head{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:12px 12px 8px}
+.res-head h2{font-size:20px;font-weight:800}
+.chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
+.chk input{accent-color:var(--lilac);width:16px;height:16px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;min-width:860px}
+th{text-align:left;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:8px 14px;cursor:pointer;white-space:nowrap;user-select:none}
+th.num,td.num{text-align:right}
+th .arr{opacity:.6}
+td{padding:14px;background:rgba(255,255,255,.04);font-weight:600;font-size:15px;white-space:nowrap}
+tr td:first-child{border-radius:14px 0 0 14px}
+tr td:last-child{border-radius:0 14px 14px 0}
+tbody tr:hover td{background:rgba(190,160,235,.1)}
+tr.low td{opacity:.45}
+.addr{font-family:ui-monospace,Menlo,monospace;font-size:14px;display:flex;align-items:center;gap:10px}
+.av{width:28px;height:28px;border-radius:50%;flex:none}
+.copy{border:0;background:none;color:var(--muted);cursor:pointer;font-size:14px}
+.copy:hover{color:#fff}
+.chains{display:flex;align-items:center}
+.chains img{width:22px;height:22px;border-radius:50%;border:2px solid #221a4a;margin-left:-6px;background:#221a4a}
+.chains img:first-child{margin-left:0}
+.chains .more{font-size:12px;color:var(--muted);margin-left:6px}
+.badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.b-ok{background:rgba(63,210,139,.14);color:var(--green)}
+.b-low{background:rgba(255,255,255,.08);color:var(--muted)}
+.b-err{background:rgba(255,107,129,.14);color:var(--red)}
+.b-load{background:rgba(190,160,235,.14);color:var(--lilac)}
+.empty{text-align:center;color:var(--muted);padding:40px 16px}
+footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px;line-height:1.7}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .8s linear infinite;vertical-align:-1px}
+@keyframes s{to{transform:rotate(360deg)}}
+#results{display:none}
+.modal{position:fixed;inset:0;background:rgba(8,6,20,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal.open{display:flex}
+.modal-box{width:100%;max-width:760px;padding:20px;background:#1b1440}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h2{font-size:20px;font-weight:800}
+#cardCanvas{width:100%;height:auto;border-radius:16px;display:block}
+.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+@media (max-width:760px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat .v{font-size:22px}
+  .hero{padding:24px 0}
+  .controls{flex-direction:column;align-items:stretch}
+  .seg{justify-content:center}
+  .pill{font-size:11px;padding:5px 10px}
+  .logo{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><div class="logo-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 16c4 0 4-8 8-8s4 8 8 8" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></div>Wallet Stats</div>
+    <span class="pill">Unofficial · Powered by LI.FI API</span>
+  </header>
+
+  <section class="hero">
+    <h1>Check your <span>Jumper</span> activity</h1>
+    <p>Transactions, volume and chains for any wallet. No wallet connection needed.</p>
+  </section>
+
+  <div class="card input-card">
+    <label class="lbl" for="wallets">Wallet addresses (one per line, or separated by spaces / commas)</label>
+    <textarea id="wallets" spellcheck="false" placeholder="0x...&#10;0x...&#10;0x..."></textarea>
+    <div class="controls">
+      <div class="seg" id="scope">
+        <button data-v="jumper" class="on">Jumper only</button>
+        <button data-v="all">All LI.FI</button>
+      </div>
+      <button class="btn" id="go">Check wallets</button>
+    </div>
+    <div class="safe">🔒 No wallet connection, no signatures, no approvals. Just public on-chain data. <a href="https://github.com/Topcrypt0/jumper-wallet-stats" target="_blank" rel="noopener">Read the code</a></div>
+    <div class="hint">"Jumper only" counts transactions made through jumper.exchange. "All LI.FI" also includes other apps that route through LI.FI (MetaMask Bridge, Rabby and others).</div>
+  </div>
+
+  <div id="results">
+    <div class="stats">
+      <div class="card stat"><div class="k">Active wallets</div><div class="v" id="s-w">0</div></div>
+      <div class="card stat"><div class="k">Transactions</div><div class="v" id="s-tx">0</div></div>
+      <div class="card stat"><div class="k">Volume (sent)</div><div class="v" id="s-vol">$0</div></div>
+      <div class="card stat"><div class="k">Chains used</div><div class="v" id="s-ch">0</div></div>
+    </div>
+
+    <div class="card results">
+      <div class="res-head">
+        <h2>Results</h2>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <label class="chk"><input type="checkbox" id="hideLow"> Hide low activity (&lt;5 tx or &lt;$500)</label>
+          <button class="btn ghost" id="shareBtn">Share card</button>
+          <button class="btn ghost" id="copyActive">Copy active</button>
+          <button class="btn ghost" id="csv">Export CSV</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th data-k="addr">Wallet</th>
+            <th data-k="tx" class="num">Txs</th>
+            <th data-k="vol" class="num">Volume <span class="arr">↓</span></th>
+            <th data-k="bridges" class="num">Bridges</th>
+            <th data-k="swaps" class="num">Swaps</th>
+            <th data-k="first">First tx</th>
+            <th data-k="last">Last tx</th>
+            <th data-k="months" class="num">Months</th>
+            <th data-k="nch">Chains</th>
+            <th data-k="status">Status</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="card modal-box">
+      <div class="modal-head"><h2>Your share card</h2><button class="copy" id="closeModal" style="font-size:22px" aria-label="Close">×</button></div>
+      <canvas id="cardCanvas" width="1200" height="675"></canvas>
+      <div class="modal-actions">
+        <button class="btn ghost" id="dlCard">Download PNG</button>
+        <button class="btn ghost" id="copyCard">Copy image</button>
+        <button class="btn" id="postX">Post on X</button>
+      </div>
+      <div class="hint" style="text-align:center">No wallet addresses on the card. Tip: click "Copy image", then paste it into your post on X.</div>
+    </div>
+  </div>
+
+  <footer>
+    Data from the public <a href="https://docs.li.fi" target="_blank" rel="noopener">LI.FI API</a>. Volume = sum of USD value sent from the wallet in completed transactions.<br>
+    Not affiliated with Jumper or LI.FI. Read-only: nothing is signed, nothing is stored.<br>
+    <a href="https://github.com/Topcrypt0/jumper-wallet-stats" target="_blank" rel="noopener">Open source on GitHub</a>
+  </footer>
+</div>
+
+<script>
+const API='https://li.quest/v1';
+let scope='jumper', rows=[], sortKey='vol', sortDir=-1, chainMap={};
+const $=s=>document.querySelector(s);
+const fmtUSD=n=>'$'+(n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':n.toLocaleString('en-US',{maximumFractionDigits:0}));
+const fmtDate=t=>t?new Date(t*1000).toISOString().slice(0,10):'—';
+const short=a=>a.slice(0,6)+'…'+a.slice(-4);
+const isLow=r=>r.tx<5||r.vol<500;
+
+function avatar(a){
+  const h=parseInt(a.slice(2,8),16)%360, h2=(h+80)%360;
+  return `<svg class="av" viewBox="0 0 28 28"><defs><linearGradient id="g${a}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h},80%,65%)"/><stop offset="1" stop-color="hsl(${h2},70%,45%)"/></linearGradient></defs><circle cx="14" cy="14" r="14" fill="url(#g${a})"/></svg>`;
+}
+
+async function loadChains(){
+  try{
+    const r=await fetch(API+'/chains?chainTypes=EVM,SVM,UTXO,MVM');
+    const j=await r.json();
+    for(const c of j.chains||[]) chainMap[c.id]={name:c.name,logo:c.logoURI};
+  }catch(e){}
+}
+
+async function fetchWallet(addr,tries=4){
+  for(let i=0;i<tries;i++){
+    try{
+      const r=await fetch(`${API}/analytics/transfers?wallet=${addr}&fromTimestamp=1500000000`);
+      if(r.status===429){await new Promise(s=>setTimeout(s,1500*(i+1)));continue}
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return (await r.json()).transfers||[];
+    }catch(e){ if(i===tries-1) throw e; await new Promise(s=>setTimeout(s,1000*(i+1))) }
+  }
+  throw new Error('rate limited');
+}
+
+function compute(addr,transfers){
+  const me=addr.toLowerCase();
+  let t=transfers.filter(x=>x.status==='DONE');
+  if(scope==='jumper') t=t.filter(x=>((x.metadata||{}).integrator||'').toLowerCase().startsWith('jumper'));
+  const out=t.filter(x=>(x.fromAddress||'').toLowerCase()===me);
+  const vol=out.reduce((s,x)=>s+(+x.sending.amountUSD||0),0);
+  const ts=t.map(x=>x.sending.timestamp).filter(Boolean);
+  const chains={};
+  for(const x of t){for(const id of [x.sending.chainId,x.receiving&&x.receiving.chainId]) if(id) chains[id]=(chains[id]||0)+1}
+  const bridges=t.filter(x=>x.receiving&&x.sending.chainId!==x.receiving.chainId).length;
+  return {
+    addr, tx:t.length, vol, bridges, swaps:t.length-bridges,
+    first:ts.length?Math.min(...ts):0, last:ts.length?Math.max(...ts):0,
+    mset:[...new Set(ts.map(s=>fmtDate(s).slice(0,7)))],
+    get months(){return this.mset.length},
+    chains:Object.entries(chains).sort((a,b)=>b[1]-a[1]).map(e=>+e[0]),
+    get nch(){return this.chains.length}, status:'ok'
+  };
+}
+
+function render(){
+  const hide=$('#hideLow').checked;
+  const list=[...rows].sort((a,b)=>{
+    if(a.status!=='ok'&&b.status==='ok') return 1;
+    if(b.status!=='ok'&&a.status==='ok') return -1;
+    const va=a[sortKey],vb=b[sortKey];
+    return (typeof va==='string'?va.localeCompare(vb):(va||0)-(vb||0))*sortDir;
+  }).filter(r=>!(hide&&r.status==='ok'&&isLow(r)));
+  const tb=$('#tbody');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="10" class="empty">No wallets to show</td></tr>`}
+  else tb.innerHTML=list.map(r=>{
+    if(r.status==='loading') return `<tr><td><div class="addr">${avatar(r.addr)}${short(r.addr)}</div></td><td colspan="8"></td><td><span class="badge b-load"><span class="spin"></span> Loading</span></td></tr>`;
+    if(r.status==='error') return `<tr><td><div class="addr">${avatar(r.addr)}${short(r.addr)}</div></td><td colspan="8" style="color:var(--muted)">${r.err}</td><td><span class="badge b-err">Error</span></td></tr>`;
+    const low=isLow(r);
+    const ch=r.chains.slice(0,5).map(id=>{const c=chainMap[id];return c&&c.logo?`<img src="${c.logo}" title="${c.name}" alt="">`:`<img title="Chain ${id}" alt="">`}).join('');
+    return `<tr class="${low?'low':''}">
+      <td><div class="addr">${avatar(r.addr)}<a href="https://scan.li.fi/wallet/${r.addr}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${short(r.addr)}</a><button class="copy" data-a="${r.addr}" title="Copy">⧉</button></div></td>
+      <td class="num">${r.tx}</td>
+      <td class="num">${fmtUSD(r.vol)}</td>
+      <td class="num">${r.bridges}</td>
+      <td class="num">${r.swaps}</td>
+      <td>${fmtDate(r.first)}</td>
+      <td>${fmtDate(r.last)}</td>
+      <td class="num">${r.months}</td>
+      <td><div class="chains">${ch}${r.nch>5?`<span class="more">+${r.nch-5}</span>`:''}${!r.nch?'<span class="more">—</span>':''}</div></td>
+      <td>${r.tx===0?'<span class="badge b-low">No activity</span>':low?'<span class="badge b-low">Low</span>':'<span class="badge b-ok">Active</span>'}</td>
+    </tr>`;
+  }).join('');
+  const ok=rows.filter(r=>r.status==='ok'), act=ok.filter(r=>!isLow(r));
+  const allCh=new Set(ok.flatMap(r=>r.chains));
+  $('#s-w').textContent=`${act.length} / ${rows.length}`;
+  $('#s-tx').textContent=ok.reduce((s,r)=>s+r.tx,0).toLocaleString('en-US');
+  $('#s-vol').textContent=fmtUSD(ok.reduce((s,r)=>s+r.vol,0));
+  $('#s-ch').textContent=allCh.size;
+  document.querySelectorAll('th').forEach(th=>{
+    const a=th.querySelector('.arr'); if(a) a.remove();
+    if(th.dataset.k===sortKey) th.insertAdjacentHTML('beforeend',` <span class="arr">${sortDir<0?'↓':'↑'}</span>`);
+  });
+}
+
+let raw={};
+async function run(){
+  const addrs=[...new Set(($('#wallets').value.match(/0x[a-fA-F0-9]{40}/g)||[]).map(a=>a))];
+  if(!addrs.length){$('#wallets').focus();return}
+  const btn=$('#go'); btn.disabled=true; btn.textContent='Checking…';
+  $('#results').style.display='block';
+  raw={}; rows=addrs.map(a=>({addr:a,status:'loading'})); render();
+  if(!Object.keys(chainMap).length) loadChains().then(render);
+  let i=0;
+  const worker=async()=>{
+    while(i<addrs.length){
+      const a=addrs[i++], idx=rows.findIndex(r=>r.addr===a);
+      try{ raw[a]=await fetchWallet(a); rows[idx]=compute(a,raw[a]) }
+      catch(e){ rows[idx]={addr:a,status:'error',err:'Could not load: '+e.message} }
+      render();
+    }
+  };
+  await Promise.all([worker(),worker(),worker()]);
+  btn.disabled=false; btn.textContent='Check wallets';
+  try{history.replaceState(null,'','#'+addrs.join(','))}catch(e){}
+}
+
+$('#go').onclick=run;
+$('#hideLow').onchange=render;
+document.querySelectorAll('#scope button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#scope button').forEach(x=>x.classList.toggle('on',x===b));
+  scope=b.dataset.v;
+  rows=rows.map(r=>raw[r.addr]?compute(r.addr,raw[r.addr]):r); render();
+});
+document.querySelectorAll('th').forEach(th=>th.onclick=()=>{
+  const k=th.dataset.k; if(sortKey===k) sortDir*=-1; else {sortKey=k; sortDir=k==='addr'||k==='first'?1:-1}
+  render();
+});
+$('#tbody').onclick=e=>{const b=e.target.closest('.copy'); if(b){navigator.clipboard.writeText(b.dataset.a); b.textContent='✓'; setTimeout(()=>b.textContent='⧉',1000)}};
+$('#copyActive').onclick=e=>{
+  const list=rows.filter(r=>r.status==='ok'&&!isLow(r)).sort((a,b)=>b.vol-a.vol).map(r=>r.addr).join('\n');
+  navigator.clipboard.writeText(list); e.target.textContent='Copied!'; setTimeout(()=>e.target.textContent='Copy active',1200);
+};
+$('#csv').onclick=()=>{
+  const h='wallet,transactions,volume_usd,bridges,swaps,first_tx,last_tx,active_months,chains\n';
+  const b=rows.filter(r=>r.status==='ok').map(r=>[r.addr,r.tx,r.vol.toFixed(2),r.bridges,r.swaps,fmtDate(r.first),fmtDate(r.last),r.months,r.nch].join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([h+b],{type:'text/csv'})); a.download=`wallet-stats-${scope}.csv`; a.click();
+};
+// ---------- Share card ----------
+const SITE='wallet-stats-checker.vercel.app';
+function totals(){
+  const ok=rows.filter(r=>r.status==='ok'&&r.tx>0);
+  const firsts=ok.map(r=>r.first).filter(Boolean), lasts=ok.map(r=>r.last).filter(Boolean);
+  return {
+    tx:ok.reduce((s,r)=>s+r.tx,0), vol:ok.reduce((s,r)=>s+r.vol,0),
+    bridges:ok.reduce((s,r)=>s+r.bridges,0), swaps:ok.reduce((s,r)=>s+r.swaps,0),
+    chains:new Set(ok.flatMap(r=>r.chains)).size, months:new Set(ok.flatMap(r=>r.mset)).size,
+    first:firsts.length?Math.min(...firsts):0, last:lasts.length?Math.max(...lasts):0
+  };
+}
+const niceDate=t=>new Date(t*1000).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+function tier(t){
+  if(t.tx>=200||t.vol>=100000) return 'Legend';
+  if(t.tx>=75||t.vol>=25000) return 'Voyager';
+  if(t.tx>=20||t.vol>=2500) return 'Explorer';
+  return 'Rookie';
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+async function drawCard(){
+  try{await Promise.all([document.fonts.load('800 40px Urbanist'),document.fonts.load('600 20px Urbanist')])}catch(e){}
+  const t=totals(), c=$('#cardCanvas').getContext('2d'), W=1200, H=675, F='Urbanist, system-ui, sans-serif';
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#120f29'; c.fillRect(0,0,W,H);
+  const glow=(x,y,r,col)=>{const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,W,H)};
+  glow(150,0,620,'rgba(135,0,184,.55)'); glow(1100,80,560,'rgba(101,59,163,.6)'); glow(640,760,640,'rgba(190,160,235,.22)');
+  // logo
+  const lg=c.createLinearGradient(56,48,104,96); lg.addColorStop(0,'#bea0eb'); lg.addColorStop(1,'#8700b8');
+  c.fillStyle=lg; rr(c,56,48,48,48,14); c.fill();
+  c.strokeStyle='#fff'; c.lineWidth=4; c.lineCap='round'; c.beginPath(); c.moveTo(66,80); c.bezierCurveTo(76,80,74,62,80,62); c.bezierCurveTo(86,62,84,80,94,80); c.stroke();
+  c.fillStyle='#fff'; c.font=`800 28px ${F}`; c.textBaseline='middle'; c.fillText('Wallet Stats',120,73);
+  // tier pill
+  const tr=tier(t), label=`${tr} · ${scope==='jumper'?'Jumper':'LI.FI'}`;
+  c.font=`700 22px ${F}`; const pw=c.measureText(label).width+40;
+  c.fillStyle='rgba(190,160,235,.14)'; rr(c,W-56-pw,50,pw,44,22); c.fill();
+  c.strokeStyle='rgba(190,160,235,.45)'; c.lineWidth=1.5; c.stroke();
+  c.fillStyle='#bea0eb'; c.fillText(label,W-56-pw+20,73);
+  // headline
+  c.textBaseline='alphabetic';
+  c.fillStyle='#a79fd0'; c.font=`600 26px ${F}`; c.fillText(`My ${scope==='jumper'?'Jumper':'LI.FI'} journey`,56,178);
+  c.font=`800 64px ${F}`;
+  const pre='Since ', date=t.first?niceDate(t.first):'—';
+  c.fillStyle='#fff'; c.fillText(pre,56,250);
+  const px=56+c.measureText(pre).width, hg=c.createLinearGradient(px,0,px+c.measureText(date).width,0);
+  hg.addColorStop(0,'#bea0eb'); hg.addColorStop(.5,'#f1e6ff'); hg.addColorStop(1,'#bea0eb');
+  c.fillStyle=hg; c.fillText(date,px,250);
+  // stat tiles
+  const stats=[['Volume',fmtUSD(t.vol)],['Transactions',t.tx.toLocaleString('en-US')],['Chains',String(t.chains)],
+               ['Bridges',t.bridges.toLocaleString('en-US')],['Swaps',t.swaps.toLocaleString('en-US')],['Active months',String(t.months)]];
+  const gx=56, gy=300, gap=20, tw=(W-2*gx-2*gap)/3, th=120;
+  stats.forEach(([k,v],i)=>{
+    const x=gx+(i%3)*(tw+gap), y=gy+Math.floor(i/3)*(th+gap);
+    c.fillStyle='rgba(255,255,255,.07)'; rr(c,x,y,tw,th,22); c.fill();
+    c.strokeStyle='rgba(255,255,255,.12)'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#a79fd0'; c.font=`600 22px ${F}`; c.fillText(k,x+26,y+44);
+    c.fillStyle='#fff'; c.font=`800 46px ${F}`; c.fillText(v,x+26,y+98);
+  });
+  // footer
+  c.fillStyle='#a79fd0'; c.font=`600 22px ${F}`;
+  c.fillText(t.last?`Last tx ${niceDate(t.last)}`:'',56,H-40);
+  c.textAlign='right'; c.fillStyle='#bea0eb'; c.font=`700 22px ${F}`; c.fillText(`Check yours → ${SITE}`,W-56,H-40); c.textAlign='left';
+}
+const cardBlob=()=>new Promise(r=>$('#cardCanvas').toBlob(r,'image/png'));
+$('#shareBtn').onclick=async()=>{
+  if(!rows.some(r=>r.status==='ok'&&r.tx>0)){alert('No activity to share yet.');return}
+  await drawCard(); $('#modal').classList.add('open');
+};
+$('#closeModal').onclick=()=>$('#modal').classList.remove('open');
+$('#modal').onclick=e=>{if(e.target.id==='modal') $('#modal').classList.remove('open')};
+$('#dlCard').onclick=async()=>{const a=document.createElement('a');a.href=URL.createObjectURL(await cardBlob());a.download='my-jumper-stats.png';a.click()};
+$('#copyCard').onclick=async e=>{
+  const b=e.target;
+  try{await navigator.clipboard.write([new ClipboardItem({'image/png':cardBlob()})]);b.textContent='Copied!'}
+  catch(err){b.textContent='Not supported, use Download'}
+  setTimeout(()=>b.textContent='Copy image',1600);
+};
+$('#postX').onclick=()=>{
+  const t=totals(), app=scope==='jumper'?'@JumperExchange':'@lifiprotocol';
+  const text=`My ${app} stats:\n\n🗓 First tx: ${t.first?niceDate(t.first):'—'}\n💸 Volume: ${fmtUSD(t.vol)}\n🔁 Transactions: ${t.tx}\n🌉 Bridges: ${t.bridges} · Swaps: ${t.swaps}\n⛓ Chains: ${t.chains}\n\nCheck yours 👇`;
+  window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://'+SITE)}`,'_blank','noopener');
+};
+
+const fromHash=decodeURIComponent(location.hash.slice(1));
+if(/0x[a-fA-F0-9]{40}/.test(fromHash)){ $('#wallets').value=fromHash.split(',').join('\n'); run() }
+</script>
+</body>
+</html>
